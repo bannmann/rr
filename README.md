@@ -1,14 +1,18 @@
-![RR](rr.svg)
+# Trako
 
-# RR - Railroad Diagram Generator
+Trako is a generator of syntax diagrams, also known as railroad diagrams.
 
-RR is a generator of syntax diagrams, also known as railroad diagrams. It is
-a self-contained tool with both a browser-based GUI and a batch mode.
-
-Besides generating diagrams from EBNF rules, RR also can perform some grammar transformation, e.g. factorization
+Besides generating diagrams from EBNF rules, Trako can also perform some grammar transformation, e.g. factorization
 and elimination of direct recursion. To some extent this transforms BNF to EBNF, yielding more compact diagrams.
 
-# Examples
+Trako is based on the excellent [RR](https://github.com/GuntherRademacher/rr) by Gunther Rademacher. It exists only to
+make the diagram generator available to other applications until the original
+[PR](https://github.com/GuntherRademacher/rr/pull/14) is accepted. If you like Trako, please upvote that PR by adding a
+thumbs-up reaction and/or ask Gunther to consider the PR.
+
+By the way, the name "Trako" is the word for "track" in [Esperanto](https://en.wikipedia.org/wiki/Esperanto).
+
+## Examples
 
 Here are two examples of generated diagrams (taken from the [Python grammar][PYTHON]):
 
@@ -20,70 +24,57 @@ Here are two examples of generated diagrams (taken from the [Python grammar][PYT
 
 ![try_stmt](try_stmt.svg)
 
-# Grammar syntax
+## Grammar syntax
 
-RR accepts grammars in [W3C-style EBNF][W3C-EBNF]. Some other representations, including
+Trako accepts grammars in [W3C-style EBNF][W3C-EBNF]. Some other representations, including
 some parser generator input notations, can be converted to W3C-style using
 [Grammar Conversion][CONVERT].
 
-# Distribution
+## Distribution
 
-RR comes as a .zip, containing a .war file. The .war file can be deployed
-in servlet containers like Tomcat or Jetty for serving the GUI. This makes up the webapp
-that is running on the original website, <https://bottlecaps.de/rr/ui>.
+There are two flavors of Trako: a library for use with other applications and an all-in-one JAR for CLI use. Both are
+available on Maven Central.
 
-The .war file is a Java "executable war", i.e. it can also be started
-standalone from command line. Two different tasks can be performed in standalone mode:
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.github.bannmann.trako/trako/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.github.bannmann.trako/trako)
 
-- serving the GUI, e.g.
+In the examples below, `VERSION` must be replaced with the desired version.
 
-```bash
-   java -jar rr.war -gui
+### Library usage
+
+via Maven:
+
 ```
-- batch diagram generation, e.g.
+<dependency>
+    <groupId>com.github.bannmann.trako</groupId>
+    <artifactId>trako</artifactId>
+    <version>VERSION</version>
+</dependency>
+```
+
+### CLI usage
+
+To generate a diagram, run e.g.
 
 ```bash
-   java -jar rr.war grammar.ebnf
+   java -jar trako-VERSION-all.jar grammar.ebnf
 ```
 
 For listing the full set of available options, run
 
 ```bash
-   java -jar rr.war
+   java -jar trako-VERSION-all.jar
 ```
 without further command line arguments.
 
-## Building RR
-For building RR, JDK 8 (or higher) must be available. In the
-project folder, run this command to build the distribution .zip file:
-
-```bash
-gradlew
-```
-
-## Thanks
-
-This project makes use of
-  * [Saxon-HE][SAXON],
-  * [TagSoup][TAGSOUP],
-  * [Apache Batik][BATIK],
-  * [Gradle][GRADLE], and
-  * [Gradle-License-Report][GRADLE-LICENSE-REPORT].
-
 ## License
 
-RR is released under the [Apache 2 License][ASL].
+Trako is released under the [Apache 2 License][ASL].
 
-## Links
-
-The official website for RR is <https://bottlecaps.de/rr/ui>.
 
 [ASL]: http://www.apache.org/licenses/LICENSE-2.0
 [PYTHON]: https://docs.python.org/3/reference/grammar.html
 [W3C-EBNF]: http://www.w3.org/TR/2010/REC-xquery-20101214/#EBNFNotation
 [CONVERT]: http://bottlecaps.de/convert/
 [SAXON]: http://www.saxonica.com/products/products.xml
-[TAGSOUP]: http://vrici.lojban.org/~cowan/XML/tagsoup/
 [BATIK]: https://xmlgraphics.apache.org/batik/
 [GRADLE]: https://gradle.org/
-[GRADLE-LICENSE-REPORT]: https://github.com/jk1/Gradle-License-Report

@@ -1,19 +1,14 @@
-/*
- * Gradle build file for RR - Railroad Diagram Generator.
- */
-
 plugins {
     id 'java'
-    id 'war'
-    id 'com.github.jk1.dependency-license-report' version '1.16'
     id 'maven-publish'
+    id 'signing'
 }
 
 defaultTasks 'build'
-build.dependsOn 'distZip'
 
-version = '1.63'
-group = 'de.bottlecaps.rr'
+version = '0.1-SNAPSHOT'
+group = 'com.github.bannmann.trako'
+
 def buildTime = new Date()
 
 def generatedSrc = "$buildDir/generated-src/main/java"
@@ -27,14 +22,11 @@ sourceSets {
 }
 
 repositories {
-    jcenter()
+    mavenCentral()
 }
 
 dependencies {
-    compileOnly 'org.apache.tomcat:tomcat-servlet-api:8.5.72'
-
     implementation 'net.sf.saxon:Saxon-HE:10.6'
-    implementation 'org.ccil.cowan.tagsoup:tagsoup:1.2.1'
     implementation 'org.apache.xmlgraphics:batik-all:1.14'
     implementation 'xml-apis:xml-apis-ext:1.3.04'
     implementation 'org.apache.xmlgraphics:xmlgraphics-commons:2.6'
@@ -51,25 +43,18 @@ jar {
             'Build-Timestamp': new java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ").format(buildTime)
         )
     }
-    rootSpec.exclude '**/de/bottlecaps/fatjar'
     archiveFileName = "${project.name}.jar"
-}
-
-licenseReport {
-    outputDir = "$buildDir/LICENSE"
-    renderers = [new com.github.jk1.license.render.TextReportRenderer()]
 }
 
 task generateSrc {
     doFirst {
-        def railroadVersion = new File("$generatedSrc/de/bottlecaps/railroad", 'RailroadVersion.java')
-        railroadVersion.parentFile.exists() || railroadVersion.parentFile.mkdirs()
-        railroadVersion.withWriter {
-            it << $/package de.bottlecaps.railroad;
+        def trakoVersion = new File("$generatedSrc/com/github/bannmann/trako", 'TrakoVersion.java')
+        trakoVersion.parentFile.exists() || trakoVersion.parentFile.mkdirs()
+        trakoVersion.withWriter {
+            it << $/package com.github.bannmann.trako;
 
-public class RailroadVersion
+public class TrakoVersion
 {
-  public static final String PROJECT_NAME = "$project.name";
   public static final String VERSION = "$version";
   public static final String DATE = "${new java.text.SimpleDateFormat("MMM dd, yyyy", Locale.US).format(buildTime)}";
 }
@@ -82,90 +67,78 @@ compileJava {
     dependsOn generateSrc
 }
 
-task generateLicense {
-    doFirst {
-        def calendar = Calendar.getInstance()
-        calendar.setTime(buildTime)
-        def year = calendar.get(Calendar.YEAR)
-        def licenseTxt = new File("$buildDir", 'LICENSE.TXT')
-        licenseTxt.parentFile.exists() || licenseTxt.parentFile.mkdirs()
-        licenseTxt.withWriter {
-            it << $/RR - Railroad Diagram Generator
-
-Copyright 2010-$year Gunther Rademacher <grd@gmx.net>
-
-Licensed under the Apache 2.0 License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-        http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
-implied. See the License for the specific language governing
-permissions and limitations under the License.
-
-This distribution also includes
-
-      - Saxon-HE from Saxonica.com
-      - TagSoup
-      - Apache Batik
-      - Apache XML Graphics Commons
-      - Apache XML Commons XML APIs
-
-For their license information see THIRD-PARTY-NOTICES.txt.
-
-Thank you for choosing RR - Railroad Diagram Generator.
-/$
-        }
-    }
+java {
+    withJavadocJar()
+    withSourcesJar()
 }
 
-war {
-    dependsOn jar, generateLicense, generateLicenseReport
+task fatJar(type: Jar) {
     manifest {
-        attributes (
-            'Main-Class': 'de.bottlecaps.fatjar.Loader',
-            'FatJar-Main-Class': 'de.bottlecaps.railroad.Railroad',
-            'FatJar-Jars': 'WEB-INF/lib/' + jar.archiveName + ' ' + configurations.runtimeClasspath.collect{'WEB-INF/lib/' + it.name}.join(' '),
-            'Implementation-Version': archiveVersion,
-            'Build-Timestamp': new java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ").format(buildTime)
-        )
+        attributes 'Main-Class': 'com.github.bannmann.trako.Trako'
     }
-    into('de/bottlecaps/fatjar') {
-        from("$buildDir/classes/java/main/de/bottlecaps/fatjar")
+    baseName = 'trako'
+    classifier = 'all'
+
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    from { configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) } } {
+        exclude 'META-INF/*.RSA', 'META-INF/*.SF', 'META-INF/*.DSA'
     }
-    into('LICENSE') {
-        from "$buildDir/LICENSE.txt"
-        from "$buildDir/LICENSE/THIRD-PARTY-NOTICES.txt"
-    }
-    classpath jar
-    rootSpec.exclude '**/de'
-    rootSpec.exclude '**/htdocs'
-    archiveFileName = "${project.name}.war"
+    with jar
 }
 
-task distZip(type:JavaExec) {
-    dependsOn war
-    main = '-jar'
-    args "$buildDir/libs/rr.war", '-distZip'
-    workingDir = "$buildDir/distributions"
-
-    doFirst {
-      mkdir workingDir
-    }
-}
+ext.isReleaseVersion = !version.endsWith("-SNAPSHOT")
 
 publishing {
-    publications {
-        jar(MavenPublication) {
-            artifactId = 'rr-lib'
-            from components.java
-        }
-        war(MavenPublication) {
-            artifactId = 'rr-webapp'
-            from components.web
+    repositories {
+        maven {
+            def releaseRepo = "https://oss.sonatype.org/service/local/staging/deploy/maven2/"
+            def snapshotRepo = "https://oss.sonatype.org/content/repositories/snapshots/"
+            url = isReleaseVersion ? releaseRepo : snapshotRepo
+            credentials {
+                username = project.hasProperty('ossrhUsername') ? ossrhUsername : "Unknown user"
+                password = project.hasProperty('ossrhPassword') ? ossrhPassword : "Unknown password"
+            }
         }
     }
+
+    publications {
+        jar(MavenPublication) {
+            from components.java
+            artifact fatJar
+
+            pom {
+                artifactId = 'trako'
+                groupId = group
+                name = group + ':' + project.name
+                description = 'Railroad diagram generator'
+                url = 'https://github.com/bannmann/trako'
+                licenses {
+                    license {
+                        name = 'Apache-2.0'
+                        url = 'https://opensource.org/licenses/Apache-2.0'
+                    }
+                }
+                developers {
+                    developer {
+                        name = 'Jens Bannmann'
+                        email = 'jens.b@web.de'
+                        organization = 'Jens Bannmann'
+                        organizationUrl = 'https://github.com/bannmann/'
+                    }
+                }
+                scm {
+                    connection = 'scm:git:git@github.com:bannmann/trako.git'
+                    developerConnection = 'scm:git:git@github.com:bannmann/trako.git'
+                    url = 'https://github.com/bannmann/trako/'
+                }
+            }
+        }
+    }
+}
+
+signing {
+    sign publishing.publications.jar
+}
+tasks.withType(Sign) {
+    onlyIf { isReleaseVersion }
 }
