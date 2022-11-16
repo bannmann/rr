@@ -6,7 +6,7 @@ plugins {
 
 defaultTasks 'build'
 
-version = '0.1-SNAPSHOT'
+version = '0.2-SNAPSHOT'
 group = 'com.github.bannmann.trako'
 
 def buildTime = new Date()
