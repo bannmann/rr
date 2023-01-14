@@ -6,9 +6,9 @@ Besides generating diagrams from EBNF rules, Trako can also perform some grammar
 and elimination of direct recursion. To some extent this transforms BNF to EBNF, yielding more compact diagrams.
 
 Trako is based on the excellent [RR](https://github.com/GuntherRademacher/rr) by Gunther Rademacher. It exists only to
-make the diagram generator available to other applications until the original
-[PR](https://github.com/GuntherRademacher/rr/pull/14) is accepted. If you like Trako, please upvote that PR by adding a
-thumbs-up reaction and/or ask Gunther to consider the PR.
+make the diagram generator available to other applications until
+[this PR](https://github.com/GuntherRademacher/rr/pull/22) is merged and RR is distributed via Maven Central. If you
+like Trako, please upvote that PR by adding a thumbs-up reaction and/or ask Gunther to consider the PR.
 
 By the way, the name "Trako" is the word for "track" in [Esperanto](https://en.wikipedia.org/wiki/Esperanto).
 
