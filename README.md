@@ -1,14 +1,17 @@
 # Trako
 
+[![](https://img.shields.io/badge/What%20to%20expect%20➞-purple "What to expect")](https://www.donmccurdy.com/2023/07/03/expectations-in-open-source/)&ensp;[![](https://img.shields.io/badge/maturity-deprecated-red "Maturity: Deprecated")](https://www.donmccurdy.com/2023/07/03/expectations-in-open-source/#maturity)&ensp;[![](https://img.shields.io/badge/development-unmaintained-red "Development: Unmaintained")](https://www.donmccurdy.com/2023/07/03/expectations-in-open-source/#development)&ensp;[![](https://img.shields.io/badge/support-self--service-orange "Support: Limited")](https://www.donmccurdy.com/2023/07/03/expectations-in-open-source/#support)
+
+### _Update: Nowadays, the original [RR](https://github.com/GuntherRademacher/rr) is available on Maven Central and offers an embeddable library. Therefore, this fork has served its purpose._ 🎉 
+
+-----
+
 Trako is a generator of syntax diagrams, also known as railroad diagrams.
 
 Besides generating diagrams from EBNF rules, Trako can also perform some grammar transformation, e.g. factorization
 and elimination of direct recursion. To some extent this transforms BNF to EBNF, yielding more compact diagrams.
 
-Trako is based on the excellent [RR](https://github.com/GuntherRademacher/rr) by Gunther Rademacher. It exists only to
-make the diagram generator available to other applications until
-[this PR](https://github.com/GuntherRademacher/rr/pull/22) is merged and RR is distributed via Maven Central. If you
-like Trako, please upvote that PR by adding a thumbs-up reaction and/or ask Gunther to consider the PR.
+️Trako is based on the excellent [RR](https://github.com/GuntherRademacher/rr) by Gunther Rademacher. Trako was created to make the RR diagram generator available to other applications and to add distribution via Maven Central. Since [PR #14](https://github.com/GuntherRademacher/rr/pull/14) and [PR #22](https://github.com/GuntherRademacher/rr/pull/22) were merged, _**Trako is no longer needed.**_ ⚠️
 
 By the way, the name "Trako" is the word for "track" in [Esperanto](https://en.wikipedia.org/wiki/Esperanto).
 
